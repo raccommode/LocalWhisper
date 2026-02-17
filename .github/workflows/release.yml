@@ -153,8 +153,7 @@ jobs:
             clang \
             libclang-dev \
             pkg-config \
-            libvulkan-dev \
-            shaderc
+            vulkan-sdk
 
       - name: Install Windows dependencies
         if: matrix.platform == 'windows-latest'
