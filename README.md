@@ -1,42 +1,74 @@
+<div align="center">
+
 # LocalWhisper
 
 **Local, private speech-to-text transcription powered by Whisper AI.**
 
-LocalWhisper transcribes your voice entirely on your machine — no cloud, no API keys, no data leaving your computer. Press a hotkey, speak, and the text is pasted at your cursor.
+[![Release](https://img.shields.io/github/v/release/raccommode/LocalWhisper?style=flat-square)](https://github.com/raccommode/LocalWhisper/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+[![macOS](https://img.shields.io/badge/macOS-supported-success?style=flat-square&logo=apple)](#download)
+[![Windows](https://img.shields.io/badge/Windows-supported-success?style=flat-square&logo=windows)](#download)
+[![Linux](https://img.shields.io/badge/Linux-supported-success?style=flat-square&logo=linux)](#download)
+
+Press a hotkey. Speak. Text appears at your cursor.
+No cloud, no API keys, no data leaves your machine.
+
+</div>
 
 ---
 
 ## Features
 
-- **100% local & private** — all processing happens on your machine
-- **Global hotkey** — toggle recording or push-to-talk from any app
-- **Auto-paste** — transcribed text is pasted automatically at cursor position
-- **15+ languages** — French, English, Spanish, German, Japanese, Chinese, and more
-- **Multiple Whisper models** — from tiny (75 MB) to large (3 GB), pick the best fit for your hardware
-- **System tray app** — runs quietly in the background
-- **Metal acceleration** — hardware-accelerated on Apple Silicon
-- **Auto-updates** — the app updates itself automatically
-- **Bilingual UI** — English and French
+| | |
+|---|---|
+| **100% local & private** | All processing stays on your machine — zero network calls |
+| **Global hotkey** | Toggle recording or push-to-talk from any app |
+| **Auto-paste** | Transcribed text is pasted directly at your cursor |
+| **15+ languages** | English, French, Spanish, German, Japanese, Chinese, and more |
+| **Multiple models** | From tiny (75 MB) to large (3 GB) — pick the best fit for your hardware |
+| **GPU-accelerated** | Metal on macOS, Vulkan on Windows/Linux |
+| **System tray** | Runs silently in the background with animated status icons |
+| **Auto-updates** | Built-in updater keeps you on the latest version |
+| **Bilingual UI** | English and French interface |
 
 ## Download
 
-Download the latest version for your platform from the [Releases](../../releases) page:
+> Download the latest version from the [**Releases page**](https://github.com/raccommode/LocalWhisper/releases/latest).
 
-| Platform | File |
-|---|---|
-| **macOS** | `.dmg` |
-| **Windows** | `.exe` |
-| **Linux** | `.deb` or `.AppImage` |
+| Platform | File | Architecture |
+|---|---|---|
+| **macOS** | `.dmg` | Apple Silicon (M1+) / Intel |
+| **Windows** | `.exe` | x64 |
+| **Linux** | `.deb` / `.AppImage` | x64 |
 
-Install it, launch it, and the setup wizard will guide you through the rest (model download, microphone permissions, hotkey configuration).
+Launch the app and the setup wizard will guide you through model download, microphone permissions, and hotkey configuration.
 
 ## How it works
 
-1. Press the global hotkey (default: `Win+Insert` / `Cmd+Insert`)
+```
+1. Press the global hotkey        (default: Cmd+Shift+H / Win+Shift+H)
 2. Speak
-3. Press the hotkey again (or release for push-to-talk)
+3. Press the hotkey again          (or release key in push-to-talk mode)
 4. Text is pasted at your cursor
+```
+
+## Build from source
+
+**Prerequisites:** [Node.js](https://nodejs.org/), [pnpm](https://pnpm.io/), [Rust](https://rustup.rs/)
+
+```bash
+git clone https://github.com/raccommode/LocalWhisper.git
+cd LocalWhisper
+pnpm install
+pnpm tauri dev      # development
+pnpm tauri build    # production build
+```
+
+## Tech stack
+
+- **Backend** — Rust, [Tauri 2](https://tauri.app/), [whisper-rs](https://github.com/tazz4843/whisper-rs), cpal, rodio, enigo
+- **Frontend** — React 18, TypeScript, Vite
 
 ## License
 
-MIT
+[MIT](LICENSE)
