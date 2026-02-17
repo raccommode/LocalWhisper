@@ -147,12 +147,14 @@ jobs:
             clang \
             libclang-dev \
             pkg-config \
-            libvulkan-dev
+            libvulkan-dev \
+            glslang-tools \
+            glslang-dev
 
       - name: Install Windows dependencies
         if: matrix.platform == 'windows-latest'
         run: |
-          choco install cmake llvm -y
+          choco install llvm -y
           echo "LIBCLANG_PATH=C:\Program Files\LLVM\lib" >> $env:GITHUB_ENV
 
       - name: Install Vulkan SDK
@@ -179,15 +181,10 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache Cargo
-        uses: actions/cache@v4
+      - name: Cache Rust
+        uses: swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            src-tauri/target
-          key: ${{ matrix.platform }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
-          restore-keys: ${{ matrix.platform }}-cargo-
+          workspaces: src-tauri
 
       - name: Patch version
         shell: bash
@@ -214,4 +211,3 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
-          token: ${{ secrets.GITHUB_TOKEN }}
