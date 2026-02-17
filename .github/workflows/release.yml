@@ -20,12 +20,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Compute version (YYYY.WEEK.N)
+      - name: Compute version (0.YYWW.N)
         id: version
         run: |
-          YEAR=$(date -u +%Y)
+          YY=$(date -u +%y)
           WEEK=$(date -u +%V | sed 's/^0//')
-          PREFIX="${YEAR}.${WEEK}"
+          PREFIX="0.${YY}${WEEK}"
 
           EXISTING=$(git tag -l "v${PREFIX}.*" | sort -t. -k3 -n)
 
@@ -70,6 +70,13 @@ jobs:
           | 🐧 Linux | `.deb` / `.AppImage` | Ubuntu 22.04+ / Most distros |
 
           > Download the file matching your platform from the **Assets** section below.
+
+          ### ⚠️ macOS — « App endommagée »
+          macOS bloque les apps non signées par Apple. Après installation, ouvrez le Terminal et lancez :
+          ```
+          xattr -cr /Applications/LocalWhisper.app
+          ```
+          Puis relancez l'application normalement.
 
           ## Changes
           TABLE
@@ -129,6 +136,7 @@ jobs:
             libgtk-3-dev \
             libayatana-appindicator3-dev \
             libasound2-dev \
+            libxdo-dev \
             cmake \
             clang \
             libclang-dev \
