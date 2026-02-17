@@ -21,12 +21,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Compute version (0.YYWW.N)
+      - name: Compute version (YY.WW.N)
         id: version
         run: |
           YY=$(date -u +%y)
           WEEK=$(date -u +%V | sed 's/^0//')
-          PREFIX="0.${YY}${WEEK}"
+          PREFIX="${YY}.${WEEK}"
 
           EXISTING=$(git tag -l "v${PREFIX}.*" | sort -t. -k3 -n)
 
