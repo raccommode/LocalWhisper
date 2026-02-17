@@ -130,6 +130,12 @@ jobs:
         if: matrix.platform == 'macos-latest'
         run: brew install cmake
 
+      - name: Add LunarG Vulkan SDK repo (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
         run: |
@@ -148,8 +154,7 @@ jobs:
             libclang-dev \
             pkg-config \
             libvulkan-dev \
-            glslang-tools \
-            glslang-dev
+            shaderc
 
       - name: Install Windows dependencies
         if: matrix.platform == 'windows-latest'
@@ -157,13 +162,19 @@ jobs:
           choco install llvm -y
           echo "LIBCLANG_PATH=C:\Program Files\LLVM\lib" >> $env:GITHUB_ENV
 
-      - name: Install Vulkan SDK
-        if: matrix.platform != 'macos-latest'
-        uses: humbletim/setup-vulkan-sdk@v1.2.1
-        with:
-          vulkan-query-version: latest
-          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang, SPIRV-Tools, shaderc
-          vulkan-use-cache: true
+      - name: Install Vulkan SDK (Windows)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          $url = "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe"
+          Write-Host "Downloading Vulkan SDK..."
+          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\VulkanSDK.exe"
+          Write-Host "Installing Vulkan SDK..."
+          Start-Process -FilePath "$env:TEMP\VulkanSDK.exe" -ArgumentList "--accept-licenses","--default-answer","--confirm-command","install" -Wait
+          $sdkDir = (Get-ChildItem "C:\VulkanSDK" -Directory | Sort-Object Name -Descending | Select-Object -First 1).FullName
+          Write-Host "VULKAN_SDK=$sdkDir"
+          echo "VULKAN_SDK=$sdkDir" >> $env:GITHUB_ENV
+          echo "$sdkDir\Bin" >> $env:GITHUB_PATH
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
