@@ -41,7 +41,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDU3NDVCOEY1ODU2NTUyRjUKUldUMVVtV0Y5YmhGVjBEeGxsem1lRzFxc3lSZi93NThqWUVqVmJnMzdLSEtVY09zRnNJUGZESWsK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUyOUFBMzdFRDBCOEUzMUYKUldRZjQ3alFmcU9hVW9kb3Q0RjJOWU9TV2g1TzRVRVZ1a09uV1dtdnc4YVdsbDNJNUNuWXZxYmgK",
       "endpoints": [
         "https://github.com/raccommode/LocalWhisper/releases/latest/download/latest.json"
       ]
