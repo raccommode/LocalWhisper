@@ -139,13 +139,22 @@ jobs:
             cmake \
             clang \
             libclang-dev \
-            pkg-config
+            pkg-config \
+            libvulkan-dev
 
       - name: Install Windows dependencies
         if: matrix.platform == 'windows-latest'
         run: |
           choco install cmake llvm -y
           echo "LIBCLANG_PATH=C:\Program Files\LLVM\lib" >> $env:GITHUB_ENV
+
+      - name: Install Vulkan SDK
+        if: matrix.platform != 'macos-latest'
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, glslang, SPIRV-Tools
+          vulkan-use-cache: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

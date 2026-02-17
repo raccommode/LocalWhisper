@@ -55,12 +55,16 @@ export function HotkeyPicker({ label, currentHotkey, onSave, onUpdate, allowClea
   const [pressed, setPressed] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const isMac = navigator.platform.toUpperCase().includes("MAC");
+
   const formatHotkeyDisplay = (hotkey: string): string => {
     if (!hotkey) return t("hotkey.notSet");
     return hotkey
-      .replace("CmdOrCtrl", "\u2318")
-      .replace("Shift", "\u21e7")
-      .replace("Alt", "\u2325")
+      .replace("CmdOrCtrl", isMac ? "\u2318" : "Ctrl")
+      .replace("Super", isMac ? "\u2318" : "Win")
+      .replace("Ctrl", isMac ? "Ctrl" : "Ctrl")
+      .replace("Shift", isMac ? "\u21e7" : "Shift")
+      .replace("Alt", isMac ? "\u2325" : "Alt")
       .replace("Space", t("hotkey.space"))
       .replace("Return", "\u21b5")
       .replace(/\+/g, " + ");

@@ -205,6 +205,18 @@ const translations = {
   },
   "audio.error": { en: "Error", fr: "Erreur" },
 
+  // Update checker
+  "update.title": { en: "Updates", fr: "Mises a jour" },
+  "update.checkButton": { en: "Check for updates", fr: "Verifier" },
+  "update.checking": { en: "Checking...", fr: "Verification..." },
+  "update.upToDate": { en: "Up to date", fr: "A jour" },
+  "update.installButton": {
+    en: "Install and restart",
+    fr: "Installer et redemarrer",
+  },
+  "update.releaseNotes": { en: "What's new:", fr: "Nouveautes :" },
+  "update.installing": { en: "Installing...", fr: "Installation..." },
+
   // Download progress
   "download.unit": { en: "MB", fr: "Mo" },
 } as const;

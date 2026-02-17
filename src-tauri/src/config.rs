@@ -24,7 +24,11 @@ fn default_ui_locale() -> String {
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
-            hotkey: "Super+Insert".to_string(),
+            hotkey: if cfg!(target_os = "macos") {
+                "Super+Insert".to_string()
+            } else {
+                "Ctrl+Shift+Space".to_string()
+            },
             hotkey_ptt: "Insert".to_string(),
             auto_paste: true,
             active_model: None,

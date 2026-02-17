@@ -9,6 +9,7 @@ import { LanguageSelector } from "./LanguageSelector";
 import { ModelSelector } from "./ModelSelector";
 import { ModelCatalog } from "./ModelCatalog";
 import { UILanguageSwitcher } from "./UILanguageSwitcher";
+import { UpdateChecker } from "./UpdateChecker";
 
 export function Settings() {
   const { t } = useI18n();
@@ -142,6 +143,11 @@ export function Settings() {
             >
               {t("settings.manageModels")}
             </button>
+          </div>
+
+          <div className="settings-section">
+            <h2>{t("update.title")}</h2>
+            <UpdateChecker />
           </div>
         </>
       )}

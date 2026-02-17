@@ -704,6 +704,68 @@ h3 {
   color: var(--danger);
 }
 
+/* ── Update checker ── */
+
+.update-checker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.update-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.update-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.update-version {
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.update-available {
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.update-status-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.update-notes {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.update-notes label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.update-notes p {
+  margin-top: 4px;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  user-select: text;
+}
+
 /* ── Scrollbar ── */
 
 ::-webkit-scrollbar {

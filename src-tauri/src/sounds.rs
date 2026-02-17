@@ -73,6 +73,19 @@ pub fn play_stop_sound() {
     play_wav_bytes(&wav2);
 }
 
+/// Play a success chime when transcription is complete (three ascending notes)
+pub fn play_complete_sound() {
+    let wav1 = generate_tone(660.0, 70, 0.25);  // E5
+    let wav2 = generate_tone(880.0, 70, 0.25);  // A5
+    let wav3 = generate_tone(1320.0, 100, 0.25); // E6
+
+    play_wav_bytes(&wav1);
+    std::thread::sleep(std::time::Duration::from_millis(40));
+    play_wav_bytes(&wav2);
+    std::thread::sleep(std::time::Duration::from_millis(40));
+    play_wav_bytes(&wav3);
+}
+
 fn play_wav_bytes(wav_data: &[u8]) {
     use rodio::{Decoder, OutputStream, Sink};
 

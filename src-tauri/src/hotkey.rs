@@ -10,15 +10,26 @@ use crate::state::{AppState, RecordingStream};
 use crate::transcription;
 use crate::tray;
 
+/// On Windows, replace "Super" modifier with "Ctrl" since the Win key
+/// is intercepted by the OS for most key combinations.
+fn normalize_hotkey(hotkey_str: &str) -> String {
+    if cfg!(target_os = "windows") && hotkey_str.contains("Super") {
+        hotkey_str.replace("Super", "Ctrl")
+    } else {
+        hotkey_str.to_string()
+    }
+}
+
 /// Register the toggle hotkey (press to start, press again to stop)
 pub fn register_hotkey(app: &AppHandle, hotkey_str: &str) -> AppResult<()> {
     if hotkey_str.is_empty() {
         return Ok(());
     }
 
-    let shortcut: Shortcut = hotkey_str
+    let normalized = normalize_hotkey(hotkey_str);
+    let shortcut: Shortcut = normalized
         .parse()
-        .map_err(|e| AppError::Hotkey(format!("Raccourci invalide '{}' : {}", hotkey_str, e)))?;
+        .map_err(|e| AppError::Hotkey(format!("Raccourci invalide '{}' : {}", normalized, e)))?;
 
     let handle = app.clone();
     app.global_shortcut()
@@ -38,9 +49,10 @@ pub fn register_ptt_hotkey(app: &AppHandle, hotkey_str: &str) -> AppResult<()> {
         return Ok(());
     }
 
-    let shortcut: Shortcut = hotkey_str
+    let normalized = normalize_hotkey(hotkey_str);
+    let shortcut: Shortcut = normalized
         .parse()
-        .map_err(|e| AppError::Hotkey(format!("Raccourci PTT invalide '{}' : {}", hotkey_str, e)))?;
+        .map_err(|e| AppError::Hotkey(format!("Raccourci PTT invalide '{}' : {}", normalized, e)))?;
 
     let handle = app.clone();
     app.global_shortcut()
@@ -211,6 +223,7 @@ fn run_transcription(
 
             match clipboard::copy_and_paste(&app, &text, auto_paste) {
                 Ok(()) => {
+                    std::thread::spawn(|| sounds::play_complete_sound());
                     let _ = app.emit("transcription-complete", &text);
                 }
                 Err(e) => {
