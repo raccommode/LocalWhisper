@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+src-tauri/target/
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.local
+
+# Logs
+*.log
+
+# Rust
+**/*.rs.bk
+
+# Tauri
+src-tauri/gen/
+
+# Models (large binary files)
+*.bin
+*.ggml

@@ -1,0 +1,20 @@
+{
+  "identifier": "default",
+  "description": "Capacités par défaut pour LocalWhisper",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:default",
+    "core:window:allow-close",
+    "core:window:allow-hide",
+    "core:window:allow-show",
+    "core:window:allow-set-focus",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-is-registered",
+    "clipboard-manager:allow-write-text",
+    "clipboard-manager:allow-read-text",
+    "notification:default",
+    "updater:default"
+  ]
+}

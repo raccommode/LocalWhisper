@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>LocalWhisper a besoin du microphone pour capturer votre voix et la transcrire en texte.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>LocalWhisper utilise l'automatisation pour coller le texte transcrit.</string>
+</dict>
+</plist>
