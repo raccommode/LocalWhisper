@@ -60,23 +60,30 @@ jobs:
             COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
           fi
 
+          # Build download URLs
+          VERSION="${{ steps.version.outputs.version }}"
+          BASE="https://github.com/raccommode/LocalWhisper/releases/download/${TAG}"
+
+          MAC_DMG="${BASE}/LocalWhisper_${VERSION}_aarch64.dmg"
+          WIN_MSI="${BASE}/LocalWhisper_${VERSION}_x64_en-US.msi"
+          LINUX_DEB="${BASE}/local-whisper_${VERSION}_amd64.deb"
+          LINUX_APPIMAGE="${BASE}/local-whisper_${VERSION}_amd64.AppImage"
+
           # Write body to file to preserve newlines
-          cat > /tmp/release-body.md << 'TABLE'
+          cat > /tmp/release-body.md << TABLE
           ## Download
 
-          | Platform | File | Notes |
-          |----------|------|-------|
-          | 🍎 macOS | `.dmg` | macOS 12+ (Apple Silicon & Intel) |
-          | 🪟 Windows | `.msi` | Windows 10+ (64-bit) |
-          | 🐧 Linux | `.deb` / `.AppImage` | Ubuntu 22.04+ / Most distros |
+          | Platform | Download | Notes |
+          |----------|----------|-------|
+          | macOS | [LocalWhisper.dmg](${MAC_DMG}) | macOS 12+ (Apple Silicon) |
+          | Windows | [LocalWhisper.msi](${WIN_MSI}) | Windows 10+ (64-bit) |
+          | Linux | [LocalWhisper.deb](${LINUX_DEB}) / [LocalWhisper.AppImage](${LINUX_APPIMAGE}) | Ubuntu 22.04+ / Most distros |
 
-          > Download the file matching your platform from the **Assets** section below.
-
-          ### ⚠️ macOS — « App endommagée »
-          macOS bloque les apps non signées par Apple. Après installation, ouvrez le Terminal et lancez :
-          ```
+          ### macOS — « App endommagee »
+          macOS bloque les apps non signees par Apple. Apres installation, ouvrez le Terminal et lancez :
+          \`\`\`
           xattr -cr /Applications/LocalWhisper.app
-          ```
+          \`\`\`
           Puis relancez l'application normalement.
 
           ## Changes
