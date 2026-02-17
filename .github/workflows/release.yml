@@ -13,6 +13,7 @@ jobs:
     outputs:
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
+      body: ${{ steps.body.outputs.body }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,6 +44,49 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Releasing as ${TAG}"
 
+      - name: Generate release body
+        id: body
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+
+          # Find previous tag
+          PREV_TAG=$(git tag -l "v*" --sort=-version:refname | grep -v "^${TAG}$" | head -1)
+
+          # Build commit list
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
+          else
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Write body to file to preserve newlines
+          cat > /tmp/release-body.md << 'TABLE'
+          ## Download
+
+          | Platform | File | Notes |
+          |----------|------|-------|
+          | 🍎 macOS | `.dmg` | macOS 12+ (Apple Silicon & Intel) |
+          | 🪟 Windows | `.msi` | Windows 10+ (64-bit) |
+          | 🐧 Linux | `.deb` / `.AppImage` | Ubuntu 22.04+ / Most distros |
+
+          > Download the file matching your platform from the **Assets** section below.
+
+          ## Changes
+          TABLE
+
+          # Remove leading spaces from heredoc
+          sed -i 's/^          //' /tmp/release-body.md
+
+          echo "$COMMITS" >> /tmp/release-body.md
+
+          # Output using delimiter to handle multiline
+          {
+            echo "body<<BODY_EOF"
+            cat /tmp/release-body.md
+            echo ""
+            echo "BODY_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create git tag
         run: |
           git tag ${{ steps.version.outputs.tag }}
@@ -58,6 +102,10 @@ jobs:
         include:
           - platform: macos-latest
             args: ""
+          - platform: ubuntu-22.04
+            args: ""
+          - platform: windows-latest
+            args: ""
 
     runs-on: ${{ matrix.platform }}
 
@@ -66,7 +114,31 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install macOS dependencies
+        if: matrix.platform == 'macos-latest'
         run: brew install cmake
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            libasound2-dev \
+            cmake \
+            clang \
+            libclang-dev \
+            pkg-config
+
+      - name: Install Windows dependencies
+        if: matrix.platform == 'windows-latest'
+        run: |
+          choco install cmake llvm -y
+          echo "LIBCLANG_PATH=C:\Program Files\LLVM\lib" >> $env:GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -115,7 +187,7 @@ jobs:
         with:
           tagName: ${{ needs.version.outputs.tag }}
           releaseName: "LocalWhisper ${{ needs.version.outputs.tag }}"
-          releaseBody: "Automatic release ${{ needs.version.outputs.tag }}"
+          releaseBody: ${{ needs.version.outputs.body }}
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
