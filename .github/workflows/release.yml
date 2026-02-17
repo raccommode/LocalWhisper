@@ -5,11 +5,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   version:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     outputs:
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
@@ -101,8 +102,6 @@ jobs:
 
   build:
     needs: version
-    permissions:
-      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -186,7 +185,7 @@ jobs:
           sed -i.bak "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml && rm -f src-tauri/Cargo.toml.bak
           echo "Patched version to $VERSION"
 
-      - name: Build and release
+      - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -199,3 +198,4 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
+          token: ${{ secrets.GITHUB_TOKEN }}
