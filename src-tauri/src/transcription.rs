@@ -23,12 +23,16 @@ pub fn transcribe(ctx: &WhisperContext, audio: &[f32], language: &str) -> AppRes
     let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
     let lang = if language == "auto" { None } else { Some(language) };
     params.set_language(lang);
+    params.set_translate(false);
     params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
     params.set_no_timestamps(true);
     params.set_single_segment(false);
+    params.set_suppress_non_speech_tokens(true);
+    params.set_temperature(0.0);
+    params.set_initial_prompt("Verbatim transcription with exact words, punctuation, and filler words:");
 
     let mut state = ctx
         .create_state()
