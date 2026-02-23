@@ -45,9 +45,6 @@ export function ModelCard({ model, isRecommended, onAction }: Props) {
           {isRecommended && (
             <span className="badge recommended-badge">{t("wizard.recommended")}</span>
           )}
-          {model.is_english_only && (
-            <span className="badge english-badge">EN</span>
-          )}
           {model.is_quantized && (
             <span className="badge quantized-badge">Q</span>
           )}

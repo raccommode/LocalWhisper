@@ -37,20 +37,16 @@ struct ModelDef {
 }
 
 const CATALOG: &[ModelDef] = &[
-    ModelDef { id: "ggml-tiny",          name: "Tiny",             size_bytes: 77_700_000,    size_label: "75 Mo",   english_only: false, quantized: false },
-    ModelDef { id: "ggml-tiny.en",       name: "Tiny (English)",   size_bytes: 77_700_000,    size_label: "75 Mo",   english_only: true,  quantized: false },
-    ModelDef { id: "ggml-tiny-q5_1",     name: "Tiny Q5",          size_bytes: 44_000_000,    size_label: "42 Mo",   english_only: false, quantized: true  },
-    ModelDef { id: "ggml-base",          name: "Base",             size_bytes: 147_000_000,   size_label: "142 Mo",  english_only: false, quantized: false },
-    ModelDef { id: "ggml-base.en",       name: "Base (English)",   size_bytes: 147_000_000,   size_label: "142 Mo",  english_only: true,  quantized: false },
-    ModelDef { id: "ggml-base-q5_1",     name: "Base Q5",          size_bytes: 90_000_000,    size_label: "87 Mo",   english_only: false, quantized: true  },
-    ModelDef { id: "ggml-small",         name: "Small",            size_bytes: 488_000_000,   size_label: "466 Mo",  english_only: false, quantized: false },
-    ModelDef { id: "ggml-small.en",      name: "Small (English)",  size_bytes: 488_000_000,   size_label: "466 Mo",  english_only: true,  quantized: false },
-    ModelDef { id: "ggml-small-q5_1",    name: "Small Q5",         size_bytes: 190_000_000,   size_label: "181 Mo",  english_only: false, quantized: true  },
-    ModelDef { id: "ggml-medium",        name: "Medium",           size_bytes: 1_533_000_000, size_label: "1.4 Go",  english_only: false, quantized: false },
-    ModelDef { id: "ggml-medium.en",     name: "Medium (English)", size_bytes: 1_533_000_000, size_label: "1.4 Go",  english_only: true,  quantized: false },
-    ModelDef { id: "ggml-medium-q5_0",   name: "Medium Q5",        size_bytes: 540_000_000,   size_label: "515 Mo",  english_only: false, quantized: true  },
-    ModelDef { id: "ggml-large-v3",      name: "Large v3",         size_bytes: 3_094_000_000, size_label: "2.9 Go",  english_only: false, quantized: false },
-    ModelDef { id: "ggml-large-v3-q5_0", name: "Large v3 Q5",      size_bytes: 1_100_000_000, size_label: "1.0 Go",  english_only: false, quantized: true  },
+    ModelDef { id: "ggml-tiny",          name: "Tiny",        size_bytes: 77_700_000,    size_label: "75 Mo",   english_only: false, quantized: false },
+    ModelDef { id: "ggml-tiny-q5_1",     name: "Tiny Q5",     size_bytes: 44_000_000,    size_label: "42 Mo",   english_only: false, quantized: true  },
+    ModelDef { id: "ggml-base",          name: "Base",        size_bytes: 147_000_000,   size_label: "142 Mo",  english_only: false, quantized: false },
+    ModelDef { id: "ggml-base-q5_1",     name: "Base Q5",     size_bytes: 90_000_000,    size_label: "87 Mo",   english_only: false, quantized: true  },
+    ModelDef { id: "ggml-small",         name: "Small",       size_bytes: 488_000_000,   size_label: "466 Mo",  english_only: false, quantized: false },
+    ModelDef { id: "ggml-small-q5_1",    name: "Small Q5",    size_bytes: 190_000_000,   size_label: "181 Mo",  english_only: false, quantized: true  },
+    ModelDef { id: "ggml-medium",        name: "Medium",      size_bytes: 1_533_000_000, size_label: "1.4 Go",  english_only: false, quantized: false },
+    ModelDef { id: "ggml-medium-q5_0",   name: "Medium Q5",   size_bytes: 540_000_000,   size_label: "515 Mo",  english_only: false, quantized: true  },
+    ModelDef { id: "ggml-large-v3",      name: "Large v3",    size_bytes: 3_094_000_000, size_label: "2.9 Go",  english_only: false, quantized: false },
+    ModelDef { id: "ggml-large-v3-q5_0", name: "Large v3 Q5", size_bytes: 1_100_000_000, size_label: "1.0 Go",  english_only: false, quantized: true  },
 ];
 
 fn models_dir(app_data_dir: &PathBuf) -> PathBuf {

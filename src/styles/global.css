@@ -146,11 +146,6 @@ h3 {
   color: #000;
 }
 
-.english-badge {
-  background: var(--accent);
-  color: white;
-}
-
 .quantized-badge {
   background: var(--warning);
   color: #000;

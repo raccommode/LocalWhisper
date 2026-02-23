@@ -30,9 +30,17 @@ pub fn transcribe(ctx: &WhisperContext, audio: &[f32], language: &str) -> AppRes
     params.set_print_timestamps(false);
     params.set_no_timestamps(true);
     params.set_single_segment(false);
+    params.set_suppress_blank(true);
     params.set_suppress_non_speech_tokens(true);
+
+    // Force deterministic verbatim transcription: temperature 0 with no fallback
     params.set_temperature(0.0);
-    params.set_initial_prompt("Verbatim transcription with exact words, punctuation, and filler words:");
+    params.set_temperature_inc(0.0);
+    params.set_entropy_thold(2.8);
+    params.set_logprob_thold(-1.5);
+    params.set_no_context(true);
+
+    params.set_initial_prompt("Transcription verbatim, mot pour mot, de l'audio suivant :");
 
     let mut state = ctx
         .create_state()

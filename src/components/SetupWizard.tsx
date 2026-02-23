@@ -49,9 +49,7 @@ export function SetupWizard({ onComplete }: Props) {
     }
   };
 
-  const mainModels = models.filter(
-    (m) => !m.is_quantized && !m.is_english_only,
-  );
+  const mainModels = models.filter((m) => !m.is_quantized);
 
   return (
     <div className="setup-wizard">
