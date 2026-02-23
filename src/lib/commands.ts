@@ -37,6 +37,9 @@ export const updateHotkeyPtt = (newHotkey: string): Promise<void> =>
 export const setAutoPaste = (enabled: boolean) =>
   invoke("set_auto_paste", { enabled });
 
+export const setVerbatimMode = (enabled: boolean) =>
+  invoke("set_verbatim_mode", { enabled });
+
 export const setLanguage = (language: string) =>
   invoke("set_language", { language });
 

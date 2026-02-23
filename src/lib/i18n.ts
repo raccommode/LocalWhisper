@@ -41,6 +41,14 @@ const translations = {
     en: "Automatically pastes transcribed text at cursor position",
     fr: "Colle automatiquement le texte transcrit a la position du curseur",
   },
+  "settings.verbatimMode": {
+    en: "Full verbatim transcription",
+    fr: "Transcription integrale mot a mot",
+  },
+  "settings.verbatimModeHelp": {
+    en: "Transcribes every word exactly as spoken, without summarizing or rephrasing",
+    fr: "Transcrit chaque mot exactement comme prononce, sans resumer ni reformuler",
+  },
   "settings.transcription": { en: "Transcription", fr: "Transcription" },
   "settings.audio": { en: "Audio", fr: "Audio" },
   "settings.interface": { en: "Interface", fr: "Interface" },

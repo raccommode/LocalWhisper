@@ -15,7 +15,12 @@ pub fn load_model(path: &Path) -> AppResult<Arc<WhisperContext>> {
     Ok(Arc::new(ctx))
 }
 
-pub fn transcribe(ctx: &WhisperContext, audio: &[f32], language: &str) -> AppResult<String> {
+pub fn transcribe(
+    ctx: &WhisperContext,
+    audio: &[f32],
+    language: &str,
+    verbatim_mode: bool,
+) -> AppResult<String> {
     if audio.is_empty() {
         return Ok(String::new());
     }
@@ -33,14 +38,17 @@ pub fn transcribe(ctx: &WhisperContext, audio: &[f32], language: &str) -> AppRes
     params.set_suppress_blank(true);
     params.set_suppress_non_speech_tokens(true);
 
-    // Force deterministic verbatim transcription: temperature 0 with no fallback
-    params.set_temperature(0.0);
-    params.set_temperature_inc(0.0);
-    params.set_entropy_thold(2.8);
-    params.set_logprob_thold(-1.5);
-    params.set_no_context(true);
-
-    params.set_initial_prompt("Transcription verbatim, mot pour mot, de l'audio suivant :");
+    if verbatim_mode {
+        // Verbatim mode: force deterministic decoding, no fallback, no context
+        // temperature_inc=0 disables the fallback that causes summarization
+        params.set_temperature(0.0);
+        params.set_temperature_inc(0.0);
+        params.set_entropy_thold(2.8);
+        params.set_logprob_thold(-1.5);
+        params.set_no_context(true);
+        // No initial_prompt: Whisper treats it as prior text, not as an instruction,
+        // which can confuse the model into summarizing instead of transcribing
+    }
 
     let mut state = ctx
         .create_state()

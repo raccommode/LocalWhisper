@@ -79,6 +79,7 @@ pub fn run() {
             commands::resume_hotkey,
             commands::update_hotkey_ptt,
             commands::set_auto_paste,
+            commands::set_verbatim_mode,
             commands::set_language,
             commands::set_ui_locale,
             commands::set_audio_device,

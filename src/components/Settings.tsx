@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { setAutoPaste, updateHotkey, updateHotkeyPtt } from "../lib/commands";
+import { setAutoPaste, setVerbatimMode, updateHotkey, updateHotkeyPtt } from "../lib/commands";
 import { useSettings } from "../hooks/useSettings";
 import { useAppState } from "../hooks/useAppState";
 import { useI18n } from "../lib/i18n";
@@ -121,6 +121,28 @@ export function Settings() {
               currentLanguage={config.language}
               onUpdate={refresh}
             />
+            <div className="setting-row">
+              <label className="toggle-label">
+                <span>{t("settings.verbatimMode")}</span>
+                <input
+                  type="checkbox"
+                  checked={config.verbatim_mode}
+                  onChange={async (e) => {
+                    try {
+                      await setVerbatimMode(e.target.checked);
+                      refresh();
+                    } catch (err) {
+                      console.error("Verbatim mode change failed:", err);
+                    }
+                  }}
+                  className="toggle-input"
+                />
+                <span className="toggle-switch" />
+              </label>
+              <p className="help-text">
+                {t("settings.verbatimModeHelp")}
+              </p>
+            </div>
           </div>
 
           <div className="settings-section">

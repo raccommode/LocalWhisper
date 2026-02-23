@@ -6,6 +6,7 @@ export interface AppConfig {
   language: string;
   audio_device: string | null;
   ui_locale: string;
+  verbatim_mode: boolean;
   first_run_complete: boolean;
 }
 

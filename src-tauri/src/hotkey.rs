@@ -189,12 +189,13 @@ fn run_transcription(
     let _ = app.emit("transcription-started", ());
     tray::start_processing_animation(&app);
 
-    let (ctx, language, auto_paste, app_data_dir) = {
+    let (ctx, language, auto_paste, verbatim_mode, app_data_dir) = {
         let inner = inner_arc.lock().unwrap();
         (
             inner.whisper_ctx.clone(),
             inner.config.language.clone(),
             inner.config.auto_paste,
+            inner.config.verbatim_mode,
             inner.app_data_dir.clone(),
         )
     };
@@ -211,7 +212,7 @@ fn run_transcription(
         },
     };
 
-    match transcription::transcribe(&ctx, &audio_data, &language) {
+    match transcription::transcribe(&ctx, &audio_data, &language, verbatim_mode) {
         Ok(text) => {
             if text.is_empty() {
                 tray::update_tray_icon(&app, false);

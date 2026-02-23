@@ -143,6 +143,14 @@ pub fn set_auto_paste(state: State<AppState>, enabled: bool) -> Result<(), Strin
 }
 
 #[tauri::command]
+pub fn set_verbatim_mode(state: State<AppState>, enabled: bool) -> Result<(), String> {
+    let mut inner = state.inner.lock().unwrap();
+    inner.config.verbatim_mode = enabled;
+    let dir = inner.app_data_dir.clone();
+    inner.config.save(&dir).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub fn set_language(state: State<AppState>, language: String) -> Result<(), String> {
     let mut inner = state.inner.lock().unwrap();
     inner.config.language = language;

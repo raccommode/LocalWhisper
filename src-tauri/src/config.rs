@@ -14,11 +14,17 @@ pub struct AppConfig {
     pub audio_device: Option<String>,
     #[serde(default = "default_ui_locale")]
     pub ui_locale: String,
+    #[serde(default = "default_true")]
+    pub verbatim_mode: bool,
     pub first_run_complete: bool,
 }
 
 fn default_ui_locale() -> String {
     "en".to_string()
+}
+
+fn default_true() -> bool {
+    true
 }
 
 impl Default for AppConfig {
@@ -35,6 +41,7 @@ impl Default for AppConfig {
             language: "fr".to_string(),
             audio_device: None,
             ui_locale: "en".to_string(),
+            verbatim_mode: true,
             first_run_complete: false,
         }
     }
