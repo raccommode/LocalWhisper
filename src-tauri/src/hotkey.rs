@@ -1,3 +1,6 @@
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState, Shortcut};
 
@@ -129,9 +132,9 @@ fn toggle_recording(app: &AppHandle) {
 }
 
 fn start(app: &AppHandle, state: &AppState, rec: &RecordingStream) {
-    let device = {
+    let (device, live_mode) = {
         let inner = state.inner.lock().unwrap();
-        inner.config.audio_device.clone()
+        (inner.config.audio_device.clone(), inner.config.live_mode)
     };
 
     match audio::start_recording(state, rec, device) {
@@ -142,6 +145,25 @@ fn start(app: &AppHandle, state: &AppState, rec: &RecordingStream) {
             tray::update_tray_icon(app, true);
             let _ = app.emit("recording-state-changed", true);
             log::info!("Enregistrement demarre");
+
+            if live_mode {
+                let shared_buffer = {
+                    let inner = state.inner.lock().unwrap();
+                    inner.shared_buffer.clone()
+                };
+                if let Some(shared_buffer) = shared_buffer {
+                    let stop_signal = Arc::new(AtomicBool::new(false));
+                    {
+                        let mut inner = state.inner.lock().unwrap();
+                        inner.live_stop_signal = Some(stop_signal.clone());
+                    }
+                    let handle = app.clone();
+                    let inner_arc = state.inner.clone();
+                    std::thread::spawn(move || {
+                        run_live_transcription(handle, inner_arc, shared_buffer, stop_signal);
+                    });
+                }
+            }
         }
         Err(e) => {
             log::error!("Demarrage enregistrement impossible : {}", e);
@@ -151,26 +173,42 @@ fn start(app: &AppHandle, state: &AppState, rec: &RecordingStream) {
 }
 
 fn stop(app: &AppHandle, state: &AppState, rec: &RecordingStream) {
+    let live_mode = {
+        let inner = state.inner.lock().unwrap();
+        inner.config.live_mode
+    };
+
     match audio::stop_recording(state, rec) {
         Ok(audio_data) => {
             // Play stop sound in a background thread
             std::thread::spawn(|| sounds::play_stop_sound());
 
-            tray::update_tray_icon(app, false);
             let _ = app.emit("recording-state-changed", false);
             log::info!("Enregistrement arrete. {} echantillons.", audio_data.len());
 
-            if audio_data.is_empty() {
-                log::warn!("Aucune donnee audio capturee");
-                return;
+            if live_mode {
+                // Signal the live transcription thread to process final chunk and finish.
+                // The live thread handles tray icon reset and transcription-complete.
+                let mut inner = state.inner.lock().unwrap();
+                if let Some(signal) = &inner.live_stop_signal {
+                    signal.store(true, Ordering::Relaxed);
+                }
+                inner.live_stop_signal = None;
+            } else {
+                tray::update_tray_icon(app, false);
+
+                if audio_data.is_empty() {
+                    log::warn!("Aucune donnee audio capturee");
+                    return;
+                }
+
+                let handle = app.clone();
+                let inner_arc = state.inner.clone();
+
+                std::thread::spawn(move || {
+                    run_transcription(handle, inner_arc, audio_data);
+                });
             }
-
-            let handle = app.clone();
-            let inner_arc = state.inner.clone();
-
-            std::thread::spawn(move || {
-                run_transcription(handle, inner_arc, audio_data);
-            });
         }
         Err(e) => {
             tray::update_tray_icon(app, false);
@@ -212,7 +250,7 @@ fn run_transcription(
         },
     };
 
-    match transcription::transcribe(&ctx, &audio_data, &language, verbatim_mode) {
+    match transcription::transcribe_long(&ctx, &audio_data, &language, verbatim_mode) {
         Ok(text) => {
             if text.is_empty() {
                 tray::update_tray_icon(&app, false);
@@ -237,6 +275,150 @@ fn run_transcription(
             log::error!("Erreur de transcription : {}", e);
             let _ = app.emit("error", format!("Erreur de transcription : {}", e));
         }
+    }
+
+    tray::update_tray_icon(&app, false);
+}
+
+fn run_live_transcription(
+    app: AppHandle,
+    inner_arc: std::sync::Arc<std::sync::Mutex<crate::state::InnerState>>,
+    shared_buffer: Arc<std::sync::Mutex<Vec<f32>>>,
+    stop_signal: Arc<AtomicBool>,
+) {
+    let (ctx, language, verbatim_mode, sample_rate, app_data_dir) = {
+        let inner = inner_arc.lock().unwrap();
+        (
+            inner.whisper_ctx.clone(),
+            inner.config.language.clone(),
+            inner.config.verbatim_mode,
+            inner.sample_rate,
+            inner.app_data_dir.clone(),
+        )
+    };
+
+    // Resolve the Whisper context
+    let ctx = match ctx {
+        Some(c) => c,
+        None => match resolve_model(&app, &inner_arc, &app_data_dir) {
+            Some(c) => c,
+            None => {
+                tray::update_tray_icon(&app, false);
+                return;
+            }
+        },
+    };
+
+    let mut last_processed: usize = 0;
+    let mut accumulated_text = String::new();
+
+    // Live loop: transcribe new audio every ~5 seconds
+    loop {
+        // Wait ~5 seconds, checking stop signal every 100ms
+        let mut should_stop = false;
+        for _ in 0..50 {
+            if stop_signal.load(Ordering::Relaxed) {
+                should_stop = true;
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(100));
+        }
+
+        // Read new audio from the shared buffer
+        let raw_chunk = {
+            let buf = shared_buffer.lock().unwrap();
+            if buf.len() > last_processed {
+                let chunk = buf[last_processed..].to_vec();
+                chunk
+            } else {
+                Vec::new()
+            }
+        };
+
+        // Only transcribe if we have at least ~2 seconds of new audio
+        let min_samples = (sample_rate as usize) * 2;
+        if raw_chunk.len() >= min_samples {
+            last_processed += raw_chunk.len();
+
+            // Resample to 16kHz if needed
+            let chunk = if sample_rate != 16000 {
+                audio::resample(&raw_chunk, sample_rate, 16000)
+            } else {
+                raw_chunk
+            };
+
+            match transcription::transcribe(&ctx, &chunk, &language, verbatim_mode) {
+                Ok(text) => {
+                    if !text.is_empty() {
+                        if !accumulated_text.is_empty() {
+                            accumulated_text.push(' ');
+                        }
+                        accumulated_text.push_str(&text);
+                        let _ = app.emit("live-transcription-partial", &accumulated_text);
+                        log::info!("Live partiel : {}", text);
+                    }
+                }
+                Err(e) => {
+                    log::error!("Erreur transcription live : {}", e);
+                }
+            }
+        }
+
+        if should_stop {
+            break;
+        }
+    }
+
+    // Process any remaining audio after stop
+    let raw_remaining = {
+        let buf = shared_buffer.lock().unwrap();
+        if buf.len() > last_processed {
+            buf[last_processed..].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+
+    // Only transcribe remaining if it's at least ~0.5 seconds
+    let min_remaining = (sample_rate as usize) / 2;
+    if raw_remaining.len() >= min_remaining {
+        let chunk = if sample_rate != 16000 {
+            audio::resample(&raw_remaining, sample_rate, 16000)
+        } else {
+            raw_remaining
+        };
+
+        if let Ok(text) = transcription::transcribe(&ctx, &chunk, &language, verbatim_mode) {
+            if !text.is_empty() {
+                if !accumulated_text.is_empty() {
+                    accumulated_text.push(' ');
+                }
+                accumulated_text.push_str(&text);
+            }
+        }
+    }
+
+    // Final result: copy to clipboard and emit completion
+    if !accumulated_text.is_empty() {
+        let auto_paste = {
+            let inner = inner_arc.lock().unwrap();
+            inner.config.auto_paste
+        };
+
+        log::info!("Live transcription complete : {}", accumulated_text);
+
+        match clipboard::copy_and_paste(&app, &accumulated_text, auto_paste) {
+            Ok(()) => {
+                std::thread::spawn(|| sounds::play_complete_sound());
+                let _ = app.emit("transcription-complete", &accumulated_text);
+            }
+            Err(e) => {
+                log::error!("Erreur presse-papier : {}", e);
+                let _ = app.emit("error", format!("Erreur presse-papier : {}", e));
+            }
+        }
+    } else {
+        let _ = app.emit("transcription-complete", "");
     }
 
     tray::update_tray_icon(&app, false);

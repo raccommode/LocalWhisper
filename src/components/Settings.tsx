@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { setAutoPaste, setVerbatimMode, updateHotkey, updateHotkeyPtt } from "../lib/commands";
+import { setAutoPaste, setVerbatimMode, setLiveMode, updateHotkey, updateHotkeyPtt } from "../lib/commands";
 import { useSettings } from "../hooks/useSettings";
 import { useAppState } from "../hooks/useAppState";
 import { useI18n } from "../lib/i18n";
@@ -14,7 +14,7 @@ import { UpdateChecker } from "./UpdateChecker";
 export function Settings() {
   const { t } = useI18n();
   const { config, refresh } = useSettings();
-  const { isRecording, isTranscribing, lastTranscription, error } =
+  const { isRecording, isTranscribing, lastTranscription, liveText, error } =
     useAppState();
   const [showModels, setShowModels] = useState(false);
 
@@ -49,6 +49,15 @@ export function Settings() {
       </div>
 
       {error && <div className="error-banner">{error}</div>}
+
+      {config.live_mode && (isRecording || liveText) && (
+        <div className="live-transcription">
+          <label>{t("settings.liveTranscription")}</label>
+          <div className="live-text">
+            {liveText || t("settings.liveWaiting")}
+          </div>
+        </div>
+      )}
 
       {lastTranscription && (
         <div className="last-transcription">
@@ -141,6 +150,28 @@ export function Settings() {
               </label>
               <p className="help-text">
                 {t("settings.verbatimModeHelp")}
+              </p>
+            </div>
+            <div className="setting-row">
+              <label className="toggle-label">
+                <span>{t("settings.liveMode")}</span>
+                <input
+                  type="checkbox"
+                  checked={config.live_mode}
+                  onChange={async (e) => {
+                    try {
+                      await setLiveMode(e.target.checked);
+                      refresh();
+                    } catch (err) {
+                      console.error("Live mode change failed:", err);
+                    }
+                  }}
+                  className="toggle-input"
+                />
+                <span className="toggle-switch" />
+              </label>
+              <p className="help-text">
+                {t("settings.liveModeHelp")}
               </p>
             </div>
           </div>

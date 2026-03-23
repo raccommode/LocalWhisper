@@ -230,7 +230,7 @@ pub fn test_microphone(app: AppHandle, device_name: Option<String>) -> AppResult
 }
 
 /// Linear interpolation resampler.
-fn resample(input: &[f32], from_rate: u32, to_rate: u32) -> Vec<f32> {
+pub fn resample(input: &[f32], from_rate: u32, to_rate: u32) -> Vec<f32> {
     if input.is_empty() {
         return Vec::new();
     }

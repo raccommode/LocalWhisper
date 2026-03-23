@@ -16,6 +16,8 @@ pub struct AppConfig {
     pub ui_locale: String,
     #[serde(default = "default_true")]
     pub verbatim_mode: bool,
+    #[serde(default)]
+    pub live_mode: bool,
     pub first_run_complete: bool,
 }
 
@@ -42,6 +44,7 @@ impl Default for AppConfig {
             audio_device: None,
             ui_locale: "en".to_string(),
             verbatim_mode: true,
+            live_mode: false,
             first_run_complete: false,
         }
     }

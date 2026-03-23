@@ -40,6 +40,9 @@ export const setAutoPaste = (enabled: boolean) =>
 export const setVerbatimMode = (enabled: boolean) =>
   invoke("set_verbatim_mode", { enabled });
 
+export const setLiveMode = (enabled: boolean) =>
+  invoke("set_live_mode", { enabled });
+
 export const setLanguage = (language: string) =>
   invoke("set_language", { language });
 

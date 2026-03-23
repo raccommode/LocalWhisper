@@ -49,6 +49,22 @@ const translations = {
     en: "Transcribes every word exactly as spoken, without summarizing or rephrasing",
     fr: "Transcrit chaque mot exactement comme prononce, sans resumer ni reformuler",
   },
+  "settings.liveMode": {
+    en: "Live note-taking",
+    fr: "Prise de notes en direct",
+  },
+  "settings.liveModeHelp": {
+    en: "Transcribes in real-time while you speak, showing text as it is recognized",
+    fr: "Transcrit en temps reel pendant que vous parlez, affichant le texte au fur et a mesure",
+  },
+  "settings.liveTranscription": {
+    en: "Live transcription",
+    fr: "Transcription en direct",
+  },
+  "settings.liveWaiting": {
+    en: "Listening...",
+    fr: "Ecoute en cours...",
+  },
   "settings.transcription": { en: "Transcription", fr: "Transcription" },
   "settings.audio": { en: "Audio", fr: "Audio" },
   "settings.interface": { en: "Interface", fr: "Interface" },

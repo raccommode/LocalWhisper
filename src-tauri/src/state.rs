@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use whisper_rs::WhisperContext;
 
@@ -13,6 +14,8 @@ pub struct InnerState {
     pub sample_rate: u32,
     /// Live shared buffer written to by the audio stream callback
     pub shared_buffer: Option<Arc<Mutex<Vec<f32>>>>,
+    /// Signal to stop the live transcription thread
+    pub live_stop_signal: Option<Arc<AtomicBool>>,
 }
 
 #[derive(Clone)]
@@ -31,6 +34,7 @@ impl AppState {
                 audio_buffer: Vec::new(),
                 sample_rate: 16000,
                 shared_buffer: None,
+                live_stop_signal: None,
             })),
         }
     }

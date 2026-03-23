@@ -72,3 +72,40 @@ pub fn transcribe(
 
     Ok(text.trim().to_string())
 }
+
+/// Transcribe long audio by splitting into chunks to prevent summarization.
+/// Each chunk is transcribed independently, preventing Whisper from condensing
+/// long recordings into summaries.
+pub fn transcribe_long(
+    ctx: &WhisperContext,
+    audio: &[f32],
+    language: &str,
+    verbatim_mode: bool,
+) -> AppResult<String> {
+    // 20 seconds at 16kHz — stays well under Whisper's 30s window
+    const CHUNK_SAMPLES: usize = 16000 * 20;
+
+    if audio.len() <= CHUNK_SAMPLES {
+        return transcribe(ctx, audio, language, verbatim_mode);
+    }
+
+    let mut full_text = String::new();
+    let mut offset = 0;
+
+    while offset < audio.len() {
+        let end = (offset + CHUNK_SAMPLES).min(audio.len());
+        let chunk = &audio[offset..end];
+
+        let text = transcribe(ctx, chunk, language, verbatim_mode)?;
+        if !text.is_empty() {
+            if !full_text.is_empty() {
+                full_text.push(' ');
+            }
+            full_text.push_str(&text);
+        }
+
+        offset = end;
+    }
+
+    Ok(full_text)
+}

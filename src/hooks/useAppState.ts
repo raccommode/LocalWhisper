@@ -3,6 +3,7 @@ import {
   onRecordingStateChanged,
   onTranscriptionStarted,
   onTranscriptionComplete,
+  onLiveTranscriptionPartial,
   onError,
 } from "../lib/events";
 
@@ -12,15 +13,25 @@ export function useAppState() {
   const [lastTranscription, setLastTranscription] = useState<string | null>(
     null,
   );
+  const [liveText, setLiveText] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unlisteners = [
-      onRecordingStateChanged(setIsRecording),
+      onRecordingStateChanged((recording) => {
+        setIsRecording(recording);
+        if (recording) {
+          setLiveText("");
+        }
+      }),
       onTranscriptionStarted(() => setIsTranscribing(true)),
       onTranscriptionComplete((text) => {
         setIsTranscribing(false);
         setLastTranscription(text);
+        setLiveText("");
+      }),
+      onLiveTranscriptionPartial((text) => {
+        setLiveText(text);
       }),
       onError((err) => {
         setIsTranscribing(false);
@@ -34,5 +45,5 @@ export function useAppState() {
     };
   }, []);
 
-  return { isRecording, isTranscribing, lastTranscription, error };
+  return { isRecording, isTranscribing, lastTranscription, liveText, error };
 }

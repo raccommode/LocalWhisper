@@ -18,6 +18,10 @@ export const onDownloadProgress = (
 export const onDownloadComplete = (callback: (modelId: string) => void) =>
   listen<string>("download-complete", (e) => callback(e.payload));
 
+export const onLiveTranscriptionPartial = (
+  callback: (text: string) => void,
+) => listen<string>("live-transcription-partial", (e) => callback(e.payload));
+
 export const onError = (callback: (error: string) => void) =>
   listen<string>("error", (e) => callback(e.payload));
 
