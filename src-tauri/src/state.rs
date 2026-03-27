@@ -16,6 +16,8 @@ pub struct InnerState {
     pub shared_buffer: Option<Arc<Mutex<Vec<f32>>>>,
     /// Signal to stop the live transcription thread
     pub live_stop_signal: Option<Arc<AtomicBool>>,
+    /// TTS child process (macOS `say` command)
+    pub tts_process: Option<std::process::Child>,
 }
 
 #[derive(Clone)]
@@ -35,6 +37,7 @@ impl AppState {
                 sample_rate: 16000,
                 shared_buffer: None,
                 live_stop_signal: None,
+                tts_process: None,
             })),
         }
     }

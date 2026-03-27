@@ -11,6 +11,8 @@ mod state;
 mod system_info;
 mod transcription;
 mod tray;
+mod tts;
+mod tts_models;
 
 use config::AppConfig;
 use state::{AppState, RecordingStream};
@@ -90,6 +92,18 @@ pub fn run() {
             commands::check_permissions,
             commands::request_microphone_permission,
             commands::open_accessibility_preferences,
+            commands::set_tts_enabled,
+            commands::set_tts_model,
+            commands::set_tts_rate,
+            commands::update_tts_hotkey,
+            commands::speak_text,
+            commands::stop_speaking,
+            commands::list_tts_models,
+            commands::download_tts_voice,
+            commands::download_piper,
+            commands::is_piper_installed,
+            commands::delete_tts_voice,
+            commands::is_speaking,
         ])
         .run(tauri::generate_context!())
         .expect("Erreur fatale lors du lancement de l'application");

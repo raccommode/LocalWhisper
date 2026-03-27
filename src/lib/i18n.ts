@@ -243,6 +243,62 @@ const translations = {
 
   // Download progress
   "download.unit": { en: "MB", fr: "Mo" },
+
+  // TTS (Text-to-Speech)
+  "settings.tts": { en: "Text-to-Speech", fr: "Lecture vocale" },
+  "settings.ttsEnabled": {
+    en: "Enable text-to-speech",
+    fr: "Activer la lecture vocale",
+  },
+  "settings.ttsEnabledHelp": {
+    en: "Select text anywhere, press the shortcut to read it aloud",
+    fr: "Selectionnez du texte n'importe ou, appuyez sur le raccourci pour le lire a voix haute",
+  },
+  "settings.ttsRate": { en: "Speed", fr: "Vitesse" },
+  "settings.ttsRateSlow": { en: "Slow", fr: "Lent" },
+  "settings.ttsRateFast": { en: "Fast", fr: "Rapide" },
+  "settings.ttsHotkey": {
+    en: "Read selection",
+    fr: "Lire la selection",
+  },
+  "settings.ttsHotkeyHelp": {
+    en: "Press to read selected text, press again to stop. Delete to clear.",
+    fr: "Appuyez pour lire le texte selectionne, reappuyez pour arreter. Suppr pour effacer.",
+  },
+  "settings.ttsSpeaking": { en: "Reading...", fr: "Lecture..." },
+  "settings.ttsWordsPerMin": {
+    en: "{rate} words/min",
+    fr: "{rate} mots/min",
+  },
+  "settings.ttsReadingText": {
+    en: "Reading:",
+    fr: "Lecture :",
+  },
+  "settings.ttsVoiceModel": { en: "Voice", fr: "Voix" },
+  "settings.ttsNoVoice": {
+    en: "No voice installed. Download one below.",
+    fr: "Aucune voix installee. Telechargez-en une ci-dessous.",
+  },
+  "settings.ttsInstallPiper": {
+    en: "Install Piper TTS engine",
+    fr: "Installer le moteur Piper TTS",
+  },
+  "settings.ttsInstallPiperHelp": {
+    en: "Piper is a fast neural text-to-speech engine. Required for realistic voices.",
+    fr: "Piper est un moteur de synthese vocale neurale rapide. Requis pour les voix realistes.",
+  },
+  "settings.ttsPiperInstalled": {
+    en: "Piper engine installed",
+    fr: "Moteur Piper installe",
+  },
+  "settings.ttsAvailableVoices": {
+    en: "Available voices",
+    fr: "Voix disponibles",
+  },
+  "settings.ttsInstall": { en: "Install", fr: "Installer" },
+  "settings.ttsDelete": { en: "Delete", fr: "Supprimer" },
+  "settings.ttsActive": { en: "Active", fr: "Active" },
+  "settings.ttsUse": { en: "Use", fr: "Utiliser" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

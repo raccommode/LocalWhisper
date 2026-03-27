@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { AppConfig, AudioDevice, ModelInfo, PermissionStatus, SystemInfo } from "./types";
+import type { AppConfig, AudioDevice, ModelInfo, PermissionStatus, SystemInfo, TtsModelInfo } from "./types";
 
 export const getConfig = () => invoke<AppConfig>("get_config");
 
@@ -67,3 +67,37 @@ export const requestMicrophonePermission = () =>
 
 export const openAccessibilityPreferences = () =>
   invoke("open_accessibility_preferences");
+
+// TTS commands
+
+export const setTtsEnabled = (enabled: boolean) =>
+  invoke("set_tts_enabled", { enabled });
+
+export const setTtsModel = (modelId: string) =>
+  invoke("set_tts_model", { modelId });
+
+export const setTtsRate = (rate: number) =>
+  invoke("set_tts_rate", { rate });
+
+export const updateTtsHotkey = (newHotkey: string): Promise<void> =>
+  invoke("update_tts_hotkey", { newHotkey });
+
+export const speakText = (text: string) =>
+  invoke("speak_text", { text });
+
+export const stopSpeaking = () => invoke("stop_speaking");
+
+export const listTtsModels = () =>
+  invoke<TtsModelInfo[]>("list_tts_models");
+
+export const downloadTtsVoice = (voiceId: string) =>
+  invoke("download_tts_voice", { voiceId });
+
+export const downloadPiper = () => invoke("download_piper");
+
+export const isPiperInstalled = () => invoke<boolean>("is_piper_installed");
+
+export const deleteTtsVoice = (voiceId: string) =>
+  invoke("delete_tts_voice", { voiceId });
+
+export const checkIsSpeaking = () => invoke<boolean>("is_speaking");

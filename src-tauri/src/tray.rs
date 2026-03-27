@@ -127,3 +127,10 @@ pub fn start_processing_animation(app: &AppHandle) {
 pub fn stop_processing_animation() {
     PROCESSING_ACTIVE.store(false, Ordering::SeqCst);
 }
+
+/// Update just the tray tooltip. Pass None to reset to default.
+pub fn update_tray_tooltip(app: &AppHandle, tooltip: Option<&str>) {
+    if let Some(tray) = app.tray_by_id("main") {
+        let _ = tray.set_tooltip(Some(tooltip.unwrap_or("LocalWhisper")));
+    }
+}

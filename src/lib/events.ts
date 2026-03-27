@@ -27,3 +27,9 @@ export const onError = (callback: (error: string) => void) =>
 
 export const onMicTestLevel = (callback: (level: number) => void) =>
   listen<number>("mic-test-level", (e) => callback(e.payload));
+
+export const onTtsStateChanged = (callback: (speaking: boolean) => void) =>
+  listen<boolean>("tts-state-changed", (e) => callback(e.payload));
+
+export const onTtsText = (callback: (text: string) => void) =>
+  listen<string>("tts-text", (e) => callback(e.payload));

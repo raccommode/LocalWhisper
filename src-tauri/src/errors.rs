@@ -20,6 +20,9 @@ pub enum AppError {
     #[error("Erreur de téléchargement : {0}")]
     Download(String),
 
+    #[error("Erreur TTS : {0}")]
+    Tts(String),
+
     #[error("Erreur I/O : {0}")]
     Io(#[from] std::io::Error),
 }

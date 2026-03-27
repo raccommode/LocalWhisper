@@ -19,6 +19,14 @@ pub struct AppConfig {
     #[serde(default)]
     pub live_mode: bool,
     pub first_run_complete: bool,
+    #[serde(default = "default_true")]
+    pub tts_enabled: bool,
+    #[serde(default)]
+    pub tts_model: Option<String>,
+    #[serde(default = "default_tts_rate")]
+    pub tts_rate: u32,
+    #[serde(default = "default_tts_hotkey")]
+    pub tts_hotkey: String,
 }
 
 fn default_ui_locale() -> String {
@@ -27,6 +35,14 @@ fn default_ui_locale() -> String {
 
 fn default_true() -> bool {
     true
+}
+
+fn default_tts_rate() -> u32 {
+    180
+}
+
+fn default_tts_hotkey() -> String {
+    "CmdOrCtrl+Shift+S".to_string()
 }
 
 impl Default for AppConfig {
@@ -46,6 +62,10 @@ impl Default for AppConfig {
             verbatim_mode: true,
             live_mode: false,
             first_run_complete: false,
+            tts_enabled: true,
+            tts_model: None,
+            tts_rate: 180,
+            tts_hotkey: "CmdOrCtrl+Shift+S".to_string(),
         }
     }
 }

@@ -9,6 +9,19 @@ export interface AppConfig {
   verbatim_mode: boolean;
   live_mode: boolean;
   first_run_complete: boolean;
+  tts_enabled: boolean;
+  tts_model: string | null;
+  tts_rate: number;
+  tts_hotkey: string;
+}
+
+export interface TtsModelInfo {
+  id: string;
+  name: string;
+  language: string;
+  size_label: string;
+  size_bytes: number;
+  is_downloaded: boolean;
 }
 
 export interface SystemInfo {
