@@ -65,6 +65,26 @@ const translations = {
     en: "Listening...",
     fr: "Ecoute en cours...",
   },
+  "settings.fileUpload": {
+    en: "Transcribe a file",
+    fr: "Transcrire un fichier",
+  },
+  "settings.selectFile": {
+    en: "Choose an audio file",
+    fr: "Choisir un fichier audio",
+  },
+  "settings.transcribeFile": {
+    en: "Transcribe",
+    fr: "Transcrire",
+  },
+  "settings.fileUploadHelp": {
+    en: "Supported formats: WAV, MP3, FLAC, OGG",
+    fr: "Formats supportes : WAV, MP3, FLAC, OGG",
+  },
+  "settings.noFileSelected": {
+    en: "No file selected",
+    fr: "Aucun fichier selectionne",
+  },
   "settings.transcription": { en: "Transcription", fr: "Transcription" },
   "settings.audio": { en: "Audio", fr: "Audio" },
   "settings.interface": { en: "Interface", fr: "Interface" },

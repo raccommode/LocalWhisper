@@ -101,3 +101,6 @@ export const deleteTtsVoice = (voiceId: string) =>
   invoke("delete_tts_voice", { voiceId });
 
 export const checkIsSpeaking = () => invoke<boolean>("is_speaking");
+
+export const transcribeFile = (filePath: string) =>
+  invoke<string>("transcribe_file", { filePath });

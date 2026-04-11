@@ -229,6 +229,44 @@ pub fn test_microphone(app: AppHandle, device_name: Option<String>) -> AppResult
     Ok(())
 }
 
+/// Load an audio file and return PCM f32 mono at 16 kHz, ready for Whisper.
+pub fn load_audio_file(path: &std::path::Path) -> AppResult<Vec<f32>> {
+    let file = std::fs::File::open(path)
+        .map_err(|e| AppError::Audio(format!("Impossible d'ouvrir le fichier : {}", e)))?;
+    let reader = std::io::BufReader::new(file);
+
+    let decoder = rodio::Decoder::new(reader)
+        .map_err(|e| AppError::Audio(format!("Format audio non supporte : {}", e)))?;
+
+    use rodio::Source;
+    let sample_rate = decoder.sample_rate();
+    let channels = decoder.channels() as usize;
+
+    // Collect all samples as f32
+    let raw_samples: Vec<f32> = decoder.map(|s| s as f32 / i16::MAX as f32).collect();
+
+    if raw_samples.is_empty() {
+        return Err(AppError::Audio("Le fichier audio est vide".into()));
+    }
+
+    // Mix to mono
+    let mono = if channels == 1 {
+        raw_samples
+    } else {
+        raw_samples
+            .chunks(channels)
+            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
+            .collect()
+    };
+
+    // Resample to 16 kHz
+    if sample_rate != 16000 {
+        Ok(resample(&mono, sample_rate, 16000))
+    } else {
+        Ok(mono)
+    }
+}
+
 /// Linear interpolation resampler.
 pub fn resample(input: &[f32], from_rate: u32, to_rate: u32) -> Vec<f32> {
     if input.is_empty() {

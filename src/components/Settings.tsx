@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { setAutoPaste, setVerbatimMode, setLiveMode, updateHotkey, updateHotkeyPtt, setTtsEnabled, setTtsModel, setTtsRate, updateTtsHotkey, listTtsModels, downloadTtsVoice, downloadPiper, isPiperInstalled, deleteTtsVoice } from "../lib/commands";
+import { open } from "@tauri-apps/plugin-dialog";
+import { setAutoPaste, setVerbatimMode, setLiveMode, updateHotkey, updateHotkeyPtt, setTtsEnabled, setTtsModel, setTtsRate, updateTtsHotkey, listTtsModels, downloadTtsVoice, downloadPiper, isPiperInstalled, deleteTtsVoice, transcribeFile } from "../lib/commands";
 import { onTtsStateChanged, onTtsText, onDownloadProgress, onDownloadComplete } from "../lib/events";
 import { useSettings } from "../hooks/useSettings";
 import { useAppState } from "../hooks/useAppState";
@@ -25,6 +26,7 @@ export function Settings() {
   const [ttsText, setTtsText] = useState("");
   const [ttsDownloading, setTtsDownloading] = useState<string | null>(null);
   const [ttsDownloadPercent, setTtsDownloadPercent] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   const refreshTts = () => {
     listTtsModels().then(setTtsModels).catch(console.error);
@@ -331,6 +333,54 @@ export function Settings() {
               <p className="help-text">
                 {t("settings.autoPasteHelp")}
               </p>
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h2>{t("settings.fileUpload")}</h2>
+            <div className="setting-row">
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={async () => {
+                    const file = await open({
+                      multiple: false,
+                      filters: [
+                        {
+                          name: "Audio",
+                          extensions: ["wav", "mp3", "flac", "ogg"],
+                        },
+                      ],
+                    });
+                    if (file) setSelectedFile(file);
+                  }}
+                >
+                  {t("settings.selectFile")}
+                </button>
+                <button
+                  className="btn btn-primary"
+                  disabled={!selectedFile || isTranscribing}
+                  onClick={async () => {
+                    if (!selectedFile) return;
+                    try {
+                      await transcribeFile(selectedFile);
+                    } catch (err) {
+                      console.error("File transcription failed:", err);
+                    }
+                    setSelectedFile(null);
+                  }}
+                >
+                  {isTranscribing
+                    ? t("settings.transcribing")
+                    : t("settings.transcribeFile")}
+                </button>
+              </div>
+              <p className="help-text" style={{ marginTop: "6px" }}>
+                {selectedFile
+                  ? selectedFile.split("/").pop()?.split("\\").pop()
+                  : t("settings.noFileSelected")}
+              </p>
+              <p className="help-text">{t("settings.fileUploadHelp")}</p>
             </div>
           </div>
 

@@ -1,10 +1,13 @@
 use tauri::{AppHandle, Emitter, State};
 
 use crate::audio::{self, AudioDevice};
+use crate::clipboard;
 use crate::config::AppConfig;
 use crate::errors::AppResult;
 use crate::hotkey;
 use crate::models::{self, ModelInfo};
+use crate::sounds;
+use crate::tray;
 use crate::permissions::{self, PermissionStatus};
 use crate::state::AppState;
 use crate::system_info::{self, SystemInfo};
@@ -229,6 +232,122 @@ pub fn request_microphone_permission() {
 #[tauri::command]
 pub fn open_accessibility_preferences() {
     permissions::open_accessibility_preferences();
+}
+
+// ── File Transcription ──
+
+#[tauri::command]
+pub async fn transcribe_file(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    file_path: String,
+) -> Result<String, String> {
+    let path = std::path::PathBuf::from(&file_path);
+    if !path.exists() {
+        return Err("Fichier introuvable".into());
+    }
+
+    let (ctx, language, auto_paste, verbatim_mode, app_data_dir) = {
+        let inner = state.inner.lock().unwrap();
+        (
+            inner.whisper_ctx.clone(),
+            inner.config.language.clone(),
+            inner.config.auto_paste,
+            inner.config.verbatim_mode,
+            inner.app_data_dir.clone(),
+        )
+    };
+
+    let inner_arc = state.inner.clone();
+
+    tokio::task::spawn_blocking(move || {
+        let _ = app.emit("transcription-started", ());
+        tray::start_processing_animation(&app);
+
+        // Load audio file
+        let audio_data = match audio::load_audio_file(&path) {
+            Ok(data) => data,
+            Err(e) => {
+                tray::update_tray_icon(&app, false);
+                let _ = app.emit("error", format!("{}", e));
+                return Err(format!("{}", e));
+            }
+        };
+
+        // Resolve whisper context
+        let ctx = match ctx {
+            Some(c) => c,
+            None => {
+                let model_id = {
+                    let inner = inner_arc.lock().unwrap();
+                    inner.config.active_model.clone()
+                };
+                let model_id = match model_id {
+                    Some(id) => id,
+                    None => {
+                        tray::update_tray_icon(&app, false);
+                        let msg = "Aucun modele selectionne";
+                        let _ = app.emit("error", msg);
+                        return Err(msg.into());
+                    }
+                };
+                let model_path = match models::get_model_path(&app_data_dir, &model_id) {
+                    Some(p) => p,
+                    None => {
+                        tray::update_tray_icon(&app, false);
+                        let msg = "Modele non installe";
+                        let _ = app.emit("error", msg);
+                        return Err(msg.into());
+                    }
+                };
+                match transcription::load_model(&model_path) {
+                    Ok(c) => {
+                        let mut inner = inner_arc.lock().unwrap();
+                        inner.whisper_ctx = Some(c.clone());
+                        c
+                    }
+                    Err(e) => {
+                        tray::update_tray_icon(&app, false);
+                        let msg = format!("Erreur chargement modele : {}", e);
+                        let _ = app.emit("error", &msg);
+                        return Err(msg);
+                    }
+                }
+            }
+        };
+
+        // Transcribe
+        match transcription::transcribe_long(&ctx, &audio_data, &language, verbatim_mode) {
+            Ok(text) => {
+                if text.is_empty() {
+                    tray::update_tray_icon(&app, false);
+                    let _ = app.emit("transcription-complete", "");
+                    return Ok(String::new());
+                }
+
+                match clipboard::copy_and_paste(&app, &text, auto_paste) {
+                    Ok(()) => {
+                        std::thread::spawn(|| sounds::play_complete_sound());
+                        let _ = app.emit("transcription-complete", &text);
+                    }
+                    Err(e) => {
+                        let _ = app.emit("error", format!("Erreur presse-papier : {}", e));
+                    }
+                }
+
+                tray::update_tray_icon(&app, false);
+                Ok(text)
+            }
+            Err(e) => {
+                tray::update_tray_icon(&app, false);
+                let msg = format!("Erreur de transcription : {}", e);
+                let _ = app.emit("error", &msg);
+                Err(msg)
+            }
+        }
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 // ── TTS Commands ──

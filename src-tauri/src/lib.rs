@@ -26,6 +26,7 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let data_dir = app
                 .path()
@@ -104,6 +105,7 @@ pub fn run() {
             commands::is_piper_installed,
             commands::delete_tts_voice,
             commands::is_speaking,
+            commands::transcribe_file,
         ])
         .run(tauri::generate_context!())
         .expect("Erreur fatale lors du lancement de l'application");
